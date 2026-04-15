@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>חברים מהחלל 🚀</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100dvh;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    #gameWrapper {
+      position: relative;
+      /* Scale canvas to fit screen while keeping 480:640 ratio */
+      width: min(480px, 100vw, calc(100dvh * 0.75 - 90px));
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      image-rendering: pixelated;
+      border: 2px solid #1a1a2e;
+      box-shadow: 0 0 40px #00ffff44;
+    }
+
+    /* ---- Touch Controls ---- */
+    #controls {
+      display: none; /* shown only on touch devices via JS */
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 10px;
+      height: 80px;
+    }
+
+    .ctrl-btn {
+      background: rgba(0, 204, 255, 0.12);
+      border: 2px solid rgba(0, 204, 255, 0.4);
+      border-radius: 12px;
+      color: #00ccff;
+      font-size: 26px;
+      line-height: 1;
+      width: 80px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+      transition: background 0.08s;
+      flex-shrink: 0;
+    }
+
+    .ctrl-btn:active,
+    .ctrl-btn.pressed {
+      background: rgba(0, 204, 255, 0.35);
+      border-color: #00ccff;
+    }
+
+    #btnFire {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      font-size: 22px;
+      background: rgba(255, 80, 80, 0.14);
+      border-color: rgba(255, 80, 80, 0.5);
+      color: #ff6666;
+      flex-shrink: 0;
+    }
+    #btnFire:active,
+    #btnFire.pressed {
+      background: rgba(255, 80, 80, 0.38);
+      border-color: #ff4444;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameWrapper">
+    <canvas id="gameCanvas" width="480" height="640"></canvas>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-btn" id="btnLeft">◀</button>
+    <button class="ctrl-btn" id="btnFire">🔥</button>
+    <button class="ctrl-btn" id="btnRight">▶</button>
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    // Show touch controls only on touch-capable devices
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      document.getElementById('controls').style.display = 'flex';
+    }
+
+    // Map touch buttons → game keys
+    function bindBtn(id, key) {
+      const btn = document.getElementById(id);
+      const press   = e => { e.preventDefault(); keys[key] = true;  btn.classList.add('pressed'); };
+      const release = e => { e.preventDefault(); keys[key] = false; btn.classList.remove('pressed'); };
+      btn.addEventListener('touchstart', press,   { passive: false });
+      btn.addEventListener('touchend',   release, { passive: false });
+      btn.addEventListener('touchcancel',release, { passive: false });
+      // Mouse fallback (desktop testing)
+      btn.addEventListener('mousedown',  press);
+      btn.addEventListener('mouseup',    release);
+      btn.addEventListener('mouseleave', release);
+    }
+
+    // keys is defined in game.js — wait one tick so it's available
+    requestAnimationFrame(() => {
+      bindBtn('btnLeft',  'ArrowLeft');
+      bindBtn('btnRight', 'ArrowRight');
+      bindBtn('btnFire',  ' ');
+    });
+  </script>
+</body>
+</html>
