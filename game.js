@@ -548,10 +548,12 @@ function drawTitle() {
   if (Math.floor(Date.now() / 500) % 2 === 0) {
     ctx.fillStyle = '#fff';
     ctx.font = '11px "Press Start 2P", monospace';
-    ctx.fillText('PRESS SPACE', W / 2, 430);
-    ctx.fillStyle = '#888';
-    ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText('TO START', W / 2, 452);
+    ctx.fillText(isTouchDevice ? 'TAP TO START' : 'PRESS SPACE', W / 2, 430);
+    if (!isTouchDevice) {
+      ctx.fillStyle = '#888';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText('TO START', W / 2, 452);
+    }
   }
 
   ctx.fillStyle = '#333';
@@ -622,10 +624,12 @@ function drawGameOver() {
   if (Math.floor(Date.now() / 600) % 2 === 0) {
     ctx.fillStyle = '#fff';
     ctx.font = '10px "Press Start 2P", monospace';
-    ctx.fillText('PRESS SPACE', W / 2, H / 2 + 70);
-    ctx.fillStyle = '#777';
-    ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText('TO RETRY', W / 2, H / 2 + 92);
+    ctx.fillText(isTouchDevice ? 'TAP TO RETRY' : 'PRESS SPACE', W / 2, H / 2 + 70);
+    if (!isTouchDevice) {
+      ctx.fillStyle = '#777';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText('TO RETRY', W / 2, H / 2 + 92);
+    }
   }
 }
 
@@ -651,10 +655,12 @@ function drawVictory() {
   if (Math.floor(Date.now() / 600) % 2 === 0) {
     ctx.fillStyle = '#fff';
     ctx.font = '10px "Press Start 2P", monospace';
-    ctx.fillText('PRESS SPACE', W / 2, H / 2 + 90);
-    ctx.fillStyle = '#888';
-    ctx.font = '8px "Press Start 2P", monospace';
-    ctx.fillText('TO PLAY AGAIN', W / 2, H / 2 + 112);
+    ctx.fillText(isTouchDevice ? 'TAP TO PLAY AGAIN' : 'PRESS SPACE', W / 2, H / 2 + 90);
+    if (!isTouchDevice) {
+      ctx.fillStyle = '#888';
+      ctx.font = '8px "Press Start 2P", monospace';
+      ctx.fillText('TO PLAY AGAIN', W / 2, H / 2 + 112);
+    }
   }
 }
 
@@ -663,6 +669,7 @@ let state = STATE.TITLE;
 let player, bullets, particles, enemyGrid, boss;
 let waveIndex = 0, stateTimer = 0;
 const keys = {};
+const isTouchDevice = navigator.maxTouchPoints > 0;
 
 function initGame() {
   player    = new Player();
@@ -693,6 +700,13 @@ window.addEventListener('keydown', e => {
   if ((state === STATE.GAME_OVER || state === STATE.VICTORY) && e.key === ' ') state = STATE.TITLE;
 });
 window.addEventListener('keyup', e => { keys[e.key] = false; });
+
+// Tap anywhere on canvas to advance screens (mobile)
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (state === STATE.TITLE)                              initGame();
+  if (state === STATE.GAME_OVER || state === STATE.VICTORY) state = STATE.TITLE;
+}, { passive: false });
 
 // ---- Update phases ----
 function updatePlaying(dt) {
